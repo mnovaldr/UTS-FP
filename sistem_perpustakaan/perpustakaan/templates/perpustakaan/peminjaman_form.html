@@ -1,0 +1,140 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}
+    {% if object %}Edit Peminjaman - ID {{ object.id }}{% else %}Peminjaman Baru{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1>{% if object %}Edit Peminjaman{% else %}Peminjaman Baru{% endif %}</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">
+                {% if object %}Perbarui informasi peminjaman buku{% else %}Buat catatan peminjaman baru{% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'peminjaman-list' %}" class="btn btn-primary">Kembali</a>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Peminjaman</h3>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.anggota.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Peminjam
+                    </label>
+                    {{ form.anggota }}
+                    {% if form.anggota.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.anggota.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.buku.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Buku
+                    </label>
+                    {{ form.buku }}
+                    {% if form.buku.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.buku.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.tanggal_kembali.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Tanggal Harus Kembali
+                    </label>
+                    {{ form.tanggal_kembali }}
+                    {% if form.tanggal_kembali.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.tanggal_kembali.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #2d3748;">Status & Denda</h3>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.status.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Status Peminjaman
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.status.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.denda.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Denda (Rp)
+                    </label>
+                    {{ form.denda }}
+                    {% if form.denda.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.denda.errors }}
+                        </div>
+                    {% endif %}
+                    <small style="color: #718096; font-size: 0.875rem; display: block; margin-top: 0.25rem;">
+                        Isi 0 jika tidak ada denda
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-success">
+                {% if object %}Update Peminjaman{% else %}Simpan Peminjaman{% endif %}
+            </button>
+            <a href="{% url 'peminjaman-list' %}" class="btn btn-secondary">Batal</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Styling untuk form fields agar konsisten dengan halaman detail */
+    input, select, textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #f8fafc;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #4299e1;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    }
+    
+    select {
+        cursor: pointer;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    /* Styling khusus untuk input tanggal */
+    input[type="date"] {
+        font-family: inherit;
+    }
+</style>
+{% endblock %}

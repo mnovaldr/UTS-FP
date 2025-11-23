@@ -1,0 +1,83 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Daftar Buku - Perpustakaan{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1>Daftar Buku</h1>
+        <a href="{% url 'buku-tambah' %}" class="btn btn-success">+ Tambah Buku</a>
+    </div>
+
+    {% if object_list %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Judul</th>
+                    <th>Penulis</th>
+                    <th>Kategori</th>
+                    <th>Tahun</th>
+                    <th>ISBN</th>
+                    <th>Stok</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for buku in object_list %}
+                <tr>
+                    <td><strong>#{{ buku.id }}</strong></td>
+                    <td>
+                        <strong>{{ buku.judul }}</strong>
+                        {% if buku.stok == 0 %}
+                            <br><small style="color: #e53e3e;">Stok habis</small>
+                        {% endif %}
+                    </td>
+                    <td>{{ buku.penulis }}</td>
+                    <td>
+                        <span class="status-badge" style="background: #e8f4fd; color: #2b6cb0;">
+                            {{ buku.get_kategori_display }}
+                        </span>
+                    </td>
+                    <td>{{ buku.tahun_terbit }}</td>
+                    <td><code>{{ buku.isbn }}</code></td>
+                    <td>
+                        <span style="font-weight: 600; 
+                            {% if buku.stok > 3 %}color: #38a169;
+                            {% elif buku.stok > 0 %}color: #d69e2e;
+                            {% else %}color: #e53e3e;{% endif %}">
+                            {{ buku.stok }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'buku-detail' buku.pk %}" class="btn btn-primary">Detail</a>
+                        <a href="{% url 'buku-edit' buku.pk %}" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'buku-hapus' buku.pk %}" class="btn btn-danger">Hapus</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="stat-cards">
+            <div class="stat-card" style="background: #e8f4fd;">
+                <h3 style="color: #2b6cb0;">{{ object_list.count }}</h3>
+                <p>Total Buku</p>
+            </div>
+            <div class="stat-card" style="background: #f0fff4;">
+                <h3 style="color: #38a169;">{{ object_list|length }}</h3>
+                <p>Tersedia</p>
+            </div>
+            <div class="stat-card" style="background: #fffaf0;">
+                <h3 style="color: #d69e2e;">0</h3>
+                <p>Sedang Dipinjam</p>
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem;">
+            <p style="font-size: 1.1rem; color: #718096; margin-bottom: 1.5rem;">Belum ada buku dalam katalog.</p>
+            <a href="{% url 'buku-tambah' %}" class="btn btn-success">Tambah Buku Pertama</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Detail Anggota - {{ anggota.nama_lengkap }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1>Detail Anggota</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Informasi lengkap anggota perpustakaan</p>
+        </div>
+        <div>
+            <a href="{% url 'anggota-edit' anggota.pk %}" class="btn btn-warning">Edit</a>
+            <a href="{% url 'anggota-hapus' anggota.pk %}" class="btn btn-danger">Hapus</a>
+            <a href="{% url 'anggota-list' %}" class="btn btn-primary">Kembali</a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Pribadi</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Nomor Anggota</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ anggota.nomor_anggota }}</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Nama Lengkap</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ anggota.nama_lengkap }}</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Email</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ anggota.email }}</div>
+            </div>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Kontak</h3>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Nomor Telepon</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    {% if anggota.no_telepon %}
+                        {{ anggota.no_telepon }}
+                    {% else %}
+                        <span style="color: #a0aec0;">-</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Alamat</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; min-height: 80px;">
+                    {{ anggota.alamat|linebreaks }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Bergabung</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    {{ anggota.tanggal_daftar|date:"l, d F Y H:i" }}
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <hr style="margin: 3rem 0;">
+
+    <h2 style="color: #2d3748; margin-bottom: 1.5rem;">Daftar Peminjaman Buku</h2>
+
+    <div class="card" style="padding: 1.5rem;">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Buku</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tanggal Kembali</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pinjam in anggota.peminjaman.all %}
+                    <tr>
+                        <td>{{ pinjam.buku.judul }}</td>
+                        <td>{{ pinjam.tanggal_pinjam|date:"d F Y" }}</td>
+                        <td>
+                            {% if pinjam.tanggal_kembali %}
+                                {{ pinjam.tanggal_kembali|date:"d F Y" }}
+                            {% else %}
+                                <span style="color:#718096;">Belum kembali</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if pinjam.status == 'dipinjam' %}
+                                <span class="badge bg-warning text-dark">Dipinjam</span>
+                            {% else %}
+                                <span class="badge bg-success">Dikembalikan</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align:center; color:#718096;">Belum ada data peminjaman</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

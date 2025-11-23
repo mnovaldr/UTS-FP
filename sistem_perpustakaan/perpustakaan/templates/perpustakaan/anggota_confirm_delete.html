@@ -1,0 +1,17 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Hapus Anggota{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Yakin ingin menghapus anggota ini?</h2>
+    <p><strong>Nama:</strong> {{ object.nama }}</p>
+    <p><strong>Email:</strong> {{ object.email }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Ya, Hapus!</button>
+        <a href="{% url 'anggota-list' %}" class="btn btn-primary">Batal</a>
+    </form>
+</div>
+{% endblock %}

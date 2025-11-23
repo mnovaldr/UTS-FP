@@ -1,0 +1,73 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Daftar Anggota - Perpustakaan{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1>Daftar Anggota</h1>
+        <a href="{% url 'anggota-tambah' %}" class="btn btn-success">+ Tambah Anggota</a>
+    </div>
+
+    {% if object_list %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nomor Anggota</th>
+                    <th>Nama Lengkap</th>
+                    <th>Email</th>
+                    <th>No. Telepon</th>
+                    <th>Tanggal Daftar</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for anggota in object_list %}
+                <tr>
+                    <td><strong>#{{ anggota.id }}</strong></td>
+                    <td>
+                        <strong>{{ anggota.nomor_anggota }}</strong>
+                    </td>
+                    <td>{{ anggota.nama_lengkap }}</td>
+                    <td>{{ anggota.email }}</td>
+                    <td>
+                        {% if anggota.no_telepon %}
+                            {{ anggota.no_telepon }}
+                        {% else %}
+                            <span style="color: #a0aec0;">-</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ anggota.tanggal_daftar|date:"d M Y" }}</td>
+                    <td>
+                        <a href="{% url 'anggota-detail' anggota.pk %}" class="btn btn-primary">Detail</a>
+                        <a href="{% url 'anggota-edit' anggota.pk %}" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'anggota-hapus' anggota.pk %}" class="btn btn-danger">Hapus</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="stat-cards">
+            <div class="stat-card" style="background: #e8f4fd;">
+                <h3 style="color: #2b6cb0;">{{ object_list.count }}</h3>
+                <p>Total Anggota</p>
+            </div>
+            <div class="stat-card" style="background: #f0fff4;">
+                <h3 style="color: #38a169;">{{ object_list|length }}</h3>
+                <p>Aktif</p>
+            </div>
+            <div class="stat-card" style="background: #fffaf0;">
+                <h3 style="color: #d69e2e;">0</h3>
+                <p>Sedang Meminjam</p>
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem;">
+            <p style="font-size: 1.1rem; color: #718096; margin-bottom: 1.5rem;">Belum ada anggota terdaftar.</p>
+            <a href="{% url 'anggota-tambah' %}" class="btn btn-success">Daftarkan Anggota Pertama</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}
+    {% if object %}Edit Anggota - {{ object.nama_lengkap }}{% else %}Tambah Anggota Baru{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1>{% if object %}Edit Anggota{% else %}Tambah Anggota Baru{% endif %}</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">
+                {% if object %}Perbarui informasi anggota perpustakaan{% else %}Isi data anggota baru{% endif %}
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'anggota-list' %}" class="btn btn-primary">Kembali</a>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Pribadi</h3>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.nomor_anggota.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Nomor Anggota
+                    </label>
+                    {{ form.nomor_anggota }}
+                    {% if form.nomor_anggota.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.nomor_anggota.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.nama_lengkap.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Nama Lengkap
+                    </label>
+                    {{ form.nama_lengkap }}
+                    {% if form.nama_lengkap.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.nama_lengkap.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.email.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Email
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.email.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Kontak</h3>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.no_telepon.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Nomor Telepon
+                    </label>
+                    {{ form.no_telepon }}
+                    {% if form.no_telepon.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.no_telepon.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label for="{{ form.alamat.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
+                        Alamat
+                    </label>
+                    {{ form.alamat }}
+                    {% if form.alamat.errors %}
+                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
+                            {{ form.alamat.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-success">
+                {% if object %}Update Anggota{% else %}Simpan Anggota{% endif %}
+            </button>
+            <a href="{% url 'anggota-list' %}" class="btn btn-secondary">Batal</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Styling untuk form fields agar konsisten dengan halaman detail */
+    input, select, textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #f8fafc;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #4299e1;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    }
+    
+    select {
+        cursor: pointer;
+    }
+    
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+</style>
+{% endblock %}

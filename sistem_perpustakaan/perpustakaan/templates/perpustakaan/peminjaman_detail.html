@@ -1,0 +1,121 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Detail Peminjaman - ID {{ peminjaman.id }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1>Detail Peminjaman</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Informasi lengkap transaksi peminjaman buku</p>
+        </div>
+        <div>
+            <a href="{% url 'peminjaman-edit' peminjaman.pk %}" class="btn btn-warning">Edit</a>
+            <a href="{% url 'peminjaman-hapus' peminjaman.pk %}" class="btn btn-danger">Hapus</a>
+            <a href="{% url 'peminjaman-list' %}" class="btn btn-primary">Kembali</a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Peminjaman</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">ID Peminjaman</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">
+                    {{ peminjaman.id }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Status Peminjaman</label>
+                <div style="padding: 0.75rem; border-radius: 6px; font-weight: 600;
+                    {% if peminjaman.status == 'DIKEMBALIKAN' %}
+                        background: #f0fff4; color: #276749; border: 1px solid #9ae6b4;
+                    {% elif peminjaman.status == 'TERLAMBAT' %}
+                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181;
+                    {% elif peminjaman.status == 'DIPINJAM' %}
+                        background: #fffaf0; color: #d69e2e; border: 1px solid #faf089;
+                    {% else %}
+                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
+                    {% endif %}">
+                    {{ peminjaman.get_status_display }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Pinjam</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    {{ peminjaman.tanggal_pinjam|date:"l, d F Y" }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Harus Kembali</label>
+                <div style="padding: 0.75rem; border-radius: 6px;
+                    {% if peminjaman.status == 'TERLAMBAT' %}
+                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181; font-weight: 600;
+                    {% else %}
+                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
+                    {% endif %}">
+                    {{ peminjaman.tanggal_kembali|date:"l, d F Y" }}
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Detail & Status</h3>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Dikembalikan</label>
+                <div style="padding: 0.75rem; border-radius: 6px;
+                    {% if peminjaman.tanggal_dikembalikan %}
+                        background: #f0fff4; color: #276749; border: 1px solid #9ae6b4;
+                    {% else %}
+                        background: #f8fafc; color: #a0aec0; border: 1px solid #e2e8f0;
+                    {% endif %}">
+                    {% if peminjaman.tanggal_dikembalikan %}
+                        {{ peminjaman.tanggal_dikembalikan|date:"l, d F Y" }}
+                    {% else %}
+                        Belum dikembalikan
+                    {% endif %}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Denda</label>
+                <div style="padding: 0.75rem; border-radius: 6px;
+                    {% if peminjaman.denda > 0 %}
+                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181; font-weight: 600;
+                    {% else %}
+                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
+                    {% endif %}">
+                    Rp {{ peminjaman.denda|floatformat:2 }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Peminjam</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    <a href="{% url 'anggota-detail' peminjaman.anggota.pk %}" 
+                       style="color: #2b6cb0; font-weight: 600; text-decoration: none; display: block;">
+                        {{ peminjaman.anggota.nama_lengkap }}
+                    </a>
+                    <small style="color: #718096;">{{ peminjaman.anggota.nomor_anggota }}</small>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Buku</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    <a href="{% url 'buku-detail' peminjaman.buku.pk %}" 
+                       style="color: #2b6cb0; font-weight: 600; text-decoration: none; display: block;">
+                        {{ peminjaman.buku.judul }}
+                    </a>
+                    <small style="color: #718096;">oleh {{ peminjaman.buku.penulis }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

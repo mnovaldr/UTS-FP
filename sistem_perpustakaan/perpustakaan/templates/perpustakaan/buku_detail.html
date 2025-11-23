@@ -1,0 +1,70 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Detail Buku - {{ buku.judul }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1>Detail Buku</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Informasi lengkap buku perpustakaan</p>
+        </div>
+        <div>
+            <a href="{% url 'buku-edit' buku.pk %}" class="btn btn-warning">Edit</a>
+            <a href="{% url 'buku-hapus' buku.pk %}" class="btn btn-danger">Hapus</a>
+            <a href="{% url 'buku-list' %}" class="btn btn-primary">Kembali</a>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Buku</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Judul</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.judul }}</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Penulis</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.penulis }}</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Kategori</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    {{ buku.get_kategori_display }}
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Penerbit</h3>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tahun Terbit</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.tahun_terbit }}</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Penerbit</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.penerbit }}</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">ISBN</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">{{ buku.isbn }}</div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Stok Tersedia</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; 
+                    {% if buku.stok > 0 %}color: #38a169; font-weight: 600;
+                    {% else %}color: #e53e3e; font-weight: 600;{% endif %}">
+                    {{ buku.stok }} buku
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

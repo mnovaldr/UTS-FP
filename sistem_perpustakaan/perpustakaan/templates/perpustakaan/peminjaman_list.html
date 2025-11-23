@@ -1,0 +1,88 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Daftar Peminjaman - Perpustakaan{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <h1>📋 Daftar Peminjaman</h1>
+        <a href="{% url 'peminjaman-tambah' %}" class="btn btn-success">+ Peminjaman Baru</a>
+    </div>
+
+    {% if peminjaman_list %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Peminjam</th>
+                    <th>Buku</th>
+                    <th>Tanggal Pinjam</th>
+                    <th>Tanggal Kembali</th>
+                    <th>Status</th>
+                    <th>Denda</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pinjam in peminjaman_list %}
+                <tr>
+                    <td>
+                        <a href="{% url 'anggota-detail' pinjam.anggota.pk %}">{{ pinjam.anggota.nama_lengkap }}</a>
+                    </td>
+                    <td>
+                        <a href="{% url 'buku-detail' pinjam.buku.pk %}">{{ pinjam.buku.judul }}</a>
+                    </td>
+                    <td>{{ pinjam.tanggal_pinjam|date:"d M Y" }}</td>
+                    <td>{{ pinjam.tanggal_kembali|date:"d M Y"|default:"-" }}</td>
+                    <td>
+                        {% if pinjam.get_status_display == "Dikembalikan" %}
+                            <span class="status-badge" style="background: #d4edda; color: #155724;">Dikembalikan</span>
+                        {% elif pinjam.get_status_display == "Terlambat" %}
+                            <span class="status-badge" style="background: #f8d7da; color: #721c24;">Terlambat</span>
+                        {% else %}
+                            <span class="status-badge" style="background: #fff3cd; color: #856404;">Dipinjam</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if pinjam.denda > 0 %}
+                            <span style="color: #e74c3c; font-weight: 500;">Rp{{ pinjam.denda }}</span>
+                        {% else %}
+                            Rp{{ pinjam.denda }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'peminjaman-detail' pinjam.pk %}" class="btn btn-primary">Detail</a>
+                        <a href="{% url 'peminjaman-edit' pinjam.pk %}" class="btn btn-warning">Edit</a>
+                        <a href="{% url 'peminjaman-hapus' pinjam.pk %}" class="btn btn-danger">Hapus</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Statistik -->
+        <div class="stat-cards">
+            <div class="stat-card" style="background: #e8f4fd;">
+                <h3>{{ peminjaman_list|length }}</h3>
+                <p>Total Peminjaman</p>
+            </div>
+            <div class="stat-card" style="background: #fff3cd;">
+                <h3>
+                    {{ peminjaman_list|length }} <!-- Ganti dengan hitungan sebenarnya jika perlu -->
+                </h3>
+                <p>Sedang Dipinjam</p>
+            </div>
+            <div class="stat-card" style="background: #d4edda;">
+                <h3>
+                    {{ peminjaman_list|length }} <!-- Ganti dengan hitungan sebenarnya jika perlu -->
+                </h3>
+                <p>Telah Dikembalikan</p>
+            </div>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem; color: #718096;">
+            <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Belum ada data peminjaman.</p>
+            <a href="{% url 'peminjaman-tambah' %}" class="btn btn-success">Buat Peminjaman Pertama</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

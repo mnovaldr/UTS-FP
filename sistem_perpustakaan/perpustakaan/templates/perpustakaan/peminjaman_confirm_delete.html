@@ -1,0 +1,130 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Hapus Peminjaman - ID {{ object.id }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 2rem;">
+        <div>
+            <h1>Hapus Peminjaman</h1>
+            <p style="color: #718096; margin-top: 0.5rem;">Konfirmasi penghapusan data peminjaman</p>
+        </div>
+        <div>
+            <a href="{% url 'peminjaman-list' %}" class="btn btn-primary">Kembali</a>
+        </div>
+    </div>
+
+    <!-- Warning Box -->
+    <div style="background: #fff5f5; border: 1px solid #fed7d7; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <svg style="width: 24px; height: 24px; color: #e53e3e; margin-right: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+            <h3 style="color: #c53030; margin: 0;">Peringatan</h3>
+        </div>
+        <p style="color: #744210; margin: 0;">
+            Anda akan menghapus data peminjaman buku. Tindakan ini tidak dapat dibatalkan dan data yang dihapus tidak dapat dikembalikan.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Peminjaman</h3>
+            
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">ID Peminjaman</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">
+                    {{ object.id }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Status</label>
+                <div style="padding: 0.75rem; border-radius: 6px; font-weight: 600;
+                    {% if object.status == 'DIKEMBALIKAN' %}
+                        background: #f0fff4; color: #276749; border: 1px solid #9ae6b4;
+                    {% elif object.status == 'TERLAMBAT' %}
+                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181;
+                    {% elif object.status == 'DIPINJAM' %}
+                        background: #fffaf0; color: #d69e2e; border: 1px solid #faf089;
+                    {% else %}
+                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
+                    {% endif %}">
+                    {{ object.get_status_display }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Pinjam</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    {{ object.tanggal_pinjam|date:"l, d F Y" }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Harus Kembali</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    {{ object.tanggal_kembali|date:"l, d F Y" }}
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1rem; color: #2d3748;">Detail Peminjaman</h3>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Peminjam</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    <div style="font-weight: 600; color: #2b6cb0;">{{ object.anggota.nama_lengkap }}</div>
+                    <small style="color: #718096;">{{ object.anggota.nomor_anggota }}</small>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Buku</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    <div style="font-weight: 600; color: #2b6cb0;">{{ object.buku.judul }}</div>
+                    <small style="color: #718096;">oleh {{ object.buku.penulis }}</small>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Denda</label>
+                <div style="padding: 0.75rem; border-radius: 6px;
+                    {% if object.denda > 0 %}
+                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181; font-weight: 600;
+                    {% else %}
+                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
+                    {% endif %}">
+                    Rp {{ object.denda|floatformat:2 }}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Dikembalikan</label>
+                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    {% if object.tanggal_dikembalikan %}
+                        <span style="color: #38a169;">{{ object.tanggal_dikembalikan|date:"l, d F Y" }}</span>
+                    {% else %}
+                        <span style="color: #a0aec0;">Belum dikembalikan</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+            <button type="submit" class="btn btn-danger" style="display: flex; align-items: center;">
+                <svg style="width: 16px; height: 16px; margin-right: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                Ya, Hapus Peminjaman
+            </button>
+            <a href="{% url 'peminjaman-list' %}" class="btn btn-secondary">Batal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
