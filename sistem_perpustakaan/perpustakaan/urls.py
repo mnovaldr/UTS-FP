@@ -14,24 +14,20 @@ from .views import (
 )
 
 urlpatterns = [
-    # === URL UTAMA & REDIRECT ===
     path('', AnggotaListView.as_view(), name='home'),
     
-    # === URL ANGGOTA ===
     path('anggota/', AnggotaListView.as_view(), name='anggota-list'),
     path('anggota/tambah/', AnggotaCreateView.as_view(), name='anggota-tambah'),
     path('anggota/<int:pk>/', AnggotaDetailView.as_view(), name='anggota-detail'),
     path('anggota/<int:pk>/edit/', AnggotaUpdateView.as_view(), name='anggota-edit'),
     path('anggota/<int:pk>/hapus/', AnggotaDeleteView.as_view(), name='anggota-hapus'),
     
-    # === URL BUKU ===
     path('buku/', BukuListView.as_view(), name='buku-list'),
     path('buku/tambah/', BukuCreateView.as_view(), name='buku-tambah'),
     path('buku/<int:pk>/', BukuDetailView.as_view(), name='buku-detail'),
     path('buku/<int:pk>/edit/', BukuUpdateView.as_view(), name='buku-edit'),
     path('buku/<int:pk>/hapus/', BukuDeleteView.as_view(), name='buku-hapus'),
     
-    # === URL PEMINJAMAN ===
     path('peminjaman/', PeminjamanListView.as_view(), name='peminjaman-list'),
     path('peminjaman/tambah/', PeminjamanCreateView.as_view(), name='peminjaman-tambah'),
     path('peminjaman/<int:pk>/', PeminjamanDetailView.as_view(), name='peminjaman-detail'),

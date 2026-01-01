@@ -23,7 +23,7 @@ def redirect_to_anggota(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', redirect_to_anggota, name='home'),  # Redirect root ke halaman anggota
-    path('perpustakaan/', include('perpustakaan.urls')),  # Web URLs
-    path('api/', include('perpustakaan.api_urls')),  # API URLs
+    path('', redirect_to_anggota, name='home'),  
+    path('perpustakaan/', include('perpustakaan.urls')),
+    path('api/', include('perpustakaan.api_urls')),
 ]

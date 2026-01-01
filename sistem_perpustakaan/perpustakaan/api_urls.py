@@ -15,6 +15,4 @@ router.register(r'peminjaman', PeminjamanViewSet, basename='api-peminjaman')
 urlpatterns = [
     path('', include(router.urls)),
     
-    # Tambahkan API root manual untuk browsable API
-    # path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]

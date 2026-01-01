@@ -46,11 +46,12 @@ class BukuForm(forms.ModelForm):
 class PeminjamanForm(forms.ModelForm):
     class Meta:
         model = Peminjaman
-        fields = ['anggota', 'buku', 'tanggal_kembali', 'status', 'denda']
+        fields = "__all__"
         widgets = {
             'anggota': forms.Select(attrs={'class': 'form-control'}),
             'buku': forms.Select(attrs={'class': 'form-control'}),
             'tanggal_kembali': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'tanggal_dikembalikan': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
             'denda': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
         }
@@ -58,6 +59,7 @@ class PeminjamanForm(forms.ModelForm):
             'anggota': 'Peminjam',
             'buku': 'Buku yang Dipinjam',
             'tanggal_kembali': 'Tanggal Harus Kembali',
+            'tanggal_dikembalikan': 'Tanggal Kembali Buku',
             'status': 'Status Peminjaman',
             'denda': 'Denda (Rp)',
         }

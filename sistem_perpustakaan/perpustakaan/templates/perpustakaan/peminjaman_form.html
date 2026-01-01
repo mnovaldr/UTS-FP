@@ -25,71 +25,73 @@
             <div>
                 <h3 style="margin-bottom: 1rem; color: #2d3748;">Informasi Peminjaman</h3>
                 
+                <!-- ANGGOTA -->
                 <div style="margin-bottom: 1rem;">
-                    <label for="{{ form.anggota.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
-                        Peminjam
-                    </label>
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Peminjam</label>
                     {{ form.anggota }}
                     {% if form.anggota.errors %}
-                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
-                            {{ form.anggota.errors }}
-                        </div>
+                        <div style="color: #e53e3e;">{{ form.anggota.errors }}</div>
                     {% endif %}
                 </div>
 
+                <!-- BUKU -->
                 <div style="margin-bottom: 1rem;">
-                    <label for="{{ form.buku.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
-                        Buku
-                    </label>
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Buku</label>
                     {{ form.buku }}
                     {% if form.buku.errors %}
-                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
-                            {{ form.buku.errors }}
-                        </div>
+                        <div style="color: #e53e3e;">{{ form.buku.errors }}</div>
                     {% endif %}
                 </div>
 
+                <!-- TANGGAL PINJAM -->
                 <div style="margin-bottom: 1rem;">
-                    <label for="{{ form.tanggal_kembali.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
-                        Tanggal Harus Kembali
-                    </label>
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Pinjam</label>
+                    {{ form.tanggal_pinjam }}
+                    {% if form.tanggal_pinjam.errors %}
+                        <div style="color: #e53e3e;">{{ form.tanggal_pinjam.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- TANGGAL HARUS KEMBALI -->
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Harus Kembali</label>
                     {{ form.tanggal_kembali }}
                     {% if form.tanggal_kembali.errors %}
-                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
-                            {{ form.tanggal_kembali.errors }}
-                        </div>
+                        <div style="color: #e53e3e;">{{ form.tanggal_kembali.errors }}</div>
                     {% endif %}
+                </div>
+
+                <!-- TANGGAL DIKEMBALIKAN -->
+                <div style="margin-bottom: 1rem;">
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Dikembalikan</label>
+                    {{ form.tanggal_dikembalikan }}
+                    {% if form.tanggal_dikembalikan.errors %}
+                        <div style="color: #e53e3e;">{{ form.tanggal_dikembalikan.errors }}</div>
+                    {% endif %}
+                    <small style="color:#718096; font-size: 0.875rem;">Kosongkan jika buku belum dikembalikan</small>
                 </div>
             </div>
 
             <div>
                 <h3 style="margin-bottom: 1rem; color: #2d3748;">Status & Denda</h3>
 
+                <!-- STATUS -->
                 <div style="margin-bottom: 1rem;">
-                    <label for="{{ form.status.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
-                        Status Peminjaman
-                    </label>
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Status Peminjaman</label>
                     {{ form.status }}
                     {% if form.status.errors %}
-                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
-                            {{ form.status.errors }}
-                        </div>
+                        <div style="color: #e53e3e;">{{ form.status.errors }}</div>
                     {% endif %}
                 </div>
 
+                <!-- DENDA -->
                 <div style="margin-bottom: 1rem;">
-                    <label for="{{ form.denda.id_for_label }}" style="font-weight: 600; display: block; margin-bottom: 0.25rem;">
-                        Denda (Rp)
-                    </label>
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Denda (Rp)</label>
                     {{ form.denda }}
                     {% if form.denda.errors %}
-                        <div style="color: #e53e3e; font-size: 0.875rem; margin-top: 0.25rem;">
-                            {{ form.denda.errors }}
-                        </div>
+                        <div style="color: #e53e3e;">{{ form.denda.errors }}</div>
                     {% endif %}
-                    <small style="color: #718096; font-size: 0.875rem; display: block; margin-top: 0.25rem;">
-                        Isi 0 jika tidak ada denda
-                    </small>
+                    <small style="color:#718096; font-size: 0.875rem;">Isi 0 jika tidak ada denda</small>
                 </div>
             </div>
         </div>
@@ -104,7 +106,6 @@
 </div>
 
 <style>
-    /* Styling untuk form fields agar konsisten dengan halaman detail */
     input, select, textarea {
         width: 100%;
         padding: 0.75rem;
@@ -114,27 +115,11 @@
         box-sizing: border-box;
         font-family: inherit;
     }
-    
-    input:focus, select:focus, textarea:focus {
+    input:focus, select:focus {
         outline: none;
         border-color: #4299e1;
         background: white;
         box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
-    }
-    
-    select {
-        cursor: pointer;
-    }
-    
-    .errorlist {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    
-    /* Styling khusus untuk input tanggal */
-    input[type="date"] {
-        font-family: inherit;
     }
 </style>
 {% endblock %}

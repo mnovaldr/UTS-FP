@@ -62,18 +62,18 @@
         <!-- Statistik -->
         <div class="stat-cards">
             <div class="stat-card" style="background: #e8f4fd;">
-                <h3>{{ peminjaman_list|length }}</h3>
+                <h3>{{ total_peminjaman }}</h3>
                 <p>Total Peminjaman</p>
             </div>
             <div class="stat-card" style="background: #fff3cd;">
                 <h3>
-                    {{ peminjaman_list|length }} <!-- Ganti dengan hitungan sebenarnya jika perlu -->
+                    {{ sedang_dipinjam }} <!-- Ganti dengan hitungan sebenarnya jika perlu -->
                 </h3>
                 <p>Sedang Dipinjam</p>
             </div>
             <div class="stat-card" style="background: #d4edda;">
                 <h3>
-                    {{ peminjaman_list|length }} <!-- Ganti dengan hitungan sebenarnya jika perlu -->
+                    {{ telah_dikembalikan }} <!-- Ganti dengan hitungan sebenarnya jika perlu -->
                 </h3>
                 <p>Telah Dikembalikan</p>
             </div>
