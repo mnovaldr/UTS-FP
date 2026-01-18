@@ -63,3 +63,24 @@ class PeminjamanForm(forms.ModelForm):
             'status': 'Status Peminjaman',
             'denda': 'Denda (Rp)',
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        buku = cleaned_data.get('buku')
+        status = cleaned_data.get('status')
+
+        if buku and status:
+            # Jika ini adalah peminjaman baru (create)
+            if not self.instance.pk:
+                if status == 'DIPINJAM' and buku.stok < 1:
+                    raise forms.ValidationError(f"Stok buku '{buku.judul}' habis, tidak dapat dipinjam.")
+            
+            # Jika ini adalah edit (update)
+            else:
+                old_instance = Peminjaman.objects.get(pk=self.instance.pk)
+                # Jika status berubah menjadi DIPINJAM dari status lain, cek stok
+                if old_instance.status != 'DIPINJAM' and status == 'DIPINJAM':
+                    if buku.stok < 1:
+                        raise forms.ValidationError(f"Stok buku '{buku.judul}' habis.")
+        
+        return cleaned_data

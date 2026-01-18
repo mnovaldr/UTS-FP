@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <form method="post">
+    <form id="anggota-form">
         {% csrf_token %}
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
@@ -93,7 +93,7 @@
 
         <div style="margin-top: 2rem; display: flex; gap: 1rem;">
             <button type="submit" class="btn btn-success">
-                {% if object %}Update Anggota{% else %}Simpan Anggota{% endif %}
+                Simpan Anggota
             </button>
             <a href="{% url 'anggota-list' %}" class="btn btn-secondary">Batal</a>
         </div>
@@ -129,4 +129,49 @@
         margin: 0;
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('anggota-form');
+    const id = "{{ object.id|default:'' }}";
+    const isEdit = id !== '';
+    const url = isEdit ? `/api/anggota/${id}/` : '/api/anggota/';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    // Jika Edit, isi form dengan data API
+    if (isEdit) {
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                // Mapping manual karena ID field Django form
+                document.querySelector('[name="nomor_anggota"]').value = data.nomor_anggota;
+                document.querySelector('[name="nama_lengkap"]').value = data.nama_lengkap;
+                document.querySelector('[name="email"]').value = data.email;
+                document.querySelector('[name="no_telepon"]').value = data.no_telepon;
+                document.querySelector('[name="alamat"]').value = data.alamat;
+            });
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRFToken': csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "{% url 'anggota-list' %}";
+            } else {
+                alert('Gagal menyimpan data. Periksa inputan Anda.');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

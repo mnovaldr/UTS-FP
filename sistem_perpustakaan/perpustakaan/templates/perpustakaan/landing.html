@@ -1,0 +1,63 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Selamat Datang - Sistem Perpustakaan{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: #2d3748;">Selamat Datang di Sistem Perpustakaan</h1>
+    <p style="font-size: 1.1rem; color: #718096; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+        Platform manajemen perpustakaan modern untuk mengelola data buku, anggota, dan sirkulasi peminjaman dengan mudah dan efisien.
+    </p>
+
+    {% if not user.is_authenticated %}
+        <div style="margin-top: 2rem;">
+            <a href="{% url 'login' %}" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1.1rem;">Masuk ke Sistem</a>
+        </div>
+    {% else %}
+        <div class="stat-cards">
+            <div class="stat-card card">
+                <h3 id="stat-buku">...</h3>
+                <p>Total Buku</p>
+                <a href="{% url 'buku-list' %}" class="btn btn-primary" style="margin-top: 1rem;">Lihat Buku</a>
+            </div>
+            <div class="stat-card card">
+                <h3 id="stat-anggota">...</h3>
+                <p>Total Anggota</p>
+                <a href="{% url 'anggota-list' %}" class="btn btn-success" style="margin-top: 1rem;">Lihat Anggota</a>
+            </div>
+            <div class="stat-card card">
+                <h3 id="stat-peminjaman">...</h3>
+                <p>Transaksi Peminjaman</p>
+                <a href="{% url 'peminjaman-list' %}" class="btn btn-warning" style="margin-top: 1rem;">Peminjaman</a>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', async function() {
+                // Fungsi untuk update angka dengan animasi loading sederhana
+                const updateStat = async (endpoint, elementId) => {
+                    const el = document.getElementById(elementId);
+                    try {
+                        // Menggunakan helper apiClient dari base.html
+                        const data = await window.apiClient.get(endpoint);
+                        // API Pagination DRF mengembalikan object { count: 10, results: [...] }
+                        if (data.count !== undefined) {
+                            el.innerText = data.count;
+                        } else {
+                            el.innerText = '0';
+                        }
+                    } catch (error) {
+                        console.error(`Gagal mengambil data ${endpoint}:`, error);
+                        el.innerText = '-';
+                    }
+                };
+
+                // Panggil API untuk ketiga entitas
+                updateStat('buku', 'stat-buku');
+                updateStat('anggota', 'stat-anggota');
+                updateStat('peminjaman', 'stat-peminjaman');
+            });
+        </script>
+    {% endif %}
+</div>
+{% endblock %}

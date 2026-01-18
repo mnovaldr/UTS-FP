@@ -22,18 +22,18 @@
             
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Judul</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.judul }}</div>
+                <div id="d-judul" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Penulis</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.penulis }}</div>
+                <div id="d-penulis" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Kategori</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    {{ buku.get_kategori_display }}
+                <div id="d-kategori" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    Loading...
                 </div>
             </div>
         </div>
@@ -43,28 +43,42 @@
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tahun Terbit</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.tahun_terbit }}</div>
+                <div id="d-tahun" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Penerbit</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ buku.penerbit }}</div>
+                <div id="d-penerbit" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">ISBN</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">{{ buku.isbn }}</div>
+                <div id="d-isbn" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Stok Tersedia</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; 
-                    {% if buku.stok > 0 %}color: #38a169; font-weight: 600;
-                    {% else %}color: #e53e3e; font-weight: 600;{% endif %}">
-                    {{ buku.stok }} buku
+                <div id="d-stok" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    Loading...
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    fetch(`/api/buku/{{ buku.id }}/`).then(r=>r.json()).then(d=>{
+        document.getElementById('d-judul').textContent = d.judul;
+        document.getElementById('d-penulis').textContent = d.penulis;
+        document.getElementById('d-kategori').textContent = d.kategori_display || d.kategori;
+        document.getElementById('d-tahun').textContent = d.tahun_terbit;
+        document.getElementById('d-penerbit').textContent = d.penerbit;
+        document.getElementById('d-isbn').textContent = d.isbn;
+        
+        const stokEl = document.getElementById('d-stok');
+        stokEl.textContent = d.stok + ' buku';
+        stokEl.style.color = d.stok > 0 ? '#38a169' : '#e53e3e';
+        stokEl.style.fontWeight = '600';
+    });
+</script>
 {% endblock %}

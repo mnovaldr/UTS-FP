@@ -14,7 +14,7 @@
         </div>
     </div>
 
-    <form method="POST">
+    <form id="buku-form">
         {% csrf_token %}
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
             <div>
@@ -62,7 +62,7 @@
         </div>
 
         <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-            <button type="submit" class="btn btn-success">Simpan Buku</button>
+            <button type="submit" class="btn btn-success">Simpan</button>
             <a href="{% url 'buku-list' %}" class="btn btn-secondary">Batal</a>
         </div>
     </form>
@@ -85,4 +85,44 @@
         box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('buku-form');
+    const id = "{{ object.id|default:'' }}";
+    const isEdit = id !== '';
+    const url = isEdit ? `/api/buku/${id}/` : '/api/buku/';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    if (isEdit) {
+        fetch(url).then(r=>r.json()).then(data => {
+            document.querySelector('[name="isbn"]').value = data.isbn;
+            document.querySelector('[name="judul"]').value = data.judul;
+            document.querySelector('[name="penulis"]').value = data.penulis;
+            document.querySelector('[name="kategori"]').value = data.kategori;
+            document.querySelector('[name="tahun_terbit"]').value = data.tahun_terbit;
+            document.querySelector('[name="penerbit"]').value = data.penerbit;
+            document.querySelector('[name="stok"]').value = data.stok;
+        });
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        
+        fetch(url, {
+            method: method,
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "{% url 'buku-list' %}";
+            } else {
+                alert('Gagal menyimpan data.');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

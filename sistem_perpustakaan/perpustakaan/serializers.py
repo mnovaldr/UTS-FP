@@ -43,3 +43,20 @@ class PeminjamanSerializer(serializers.ModelSerializer):
             'tanggal_kembali', 'tanggal_dikembalikan', 'status', 
             'status_display', 'denda'
         ]
+
+    def validate(self, data):
+        buku = data.get('buku')
+        status = data.get('status')
+
+        # Validasi Stok saat Create
+        if self.instance is None:
+            if status == 'DIPINJAM' and buku and buku.stok < 1:
+                raise serializers.ValidationError({"buku": f"Stok buku '{buku.judul}' habis."})
+        
+        # Validasi Stok saat Update
+        else:
+            if self.instance.status != 'DIPINJAM' and status == 'DIPINJAM':
+                if buku and buku.stok < 1:
+                    raise serializers.ValidationError({"buku": f"Stok buku '{buku.judul}' habis."})
+        
+        return data

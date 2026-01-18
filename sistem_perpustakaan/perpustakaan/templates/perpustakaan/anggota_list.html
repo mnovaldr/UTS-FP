@@ -9,8 +9,15 @@
         <a href="{% url 'anggota-tambah' %}" class="btn btn-success">+ Tambah Anggota</a>
     </div>
 
-    {% if object_list %}
-        <table class="table">
+    <!-- Search Control -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+        <input type="text" id="search-input" placeholder="Cari nama, alamat, nomor anggota..." 
+               style="flex: 1; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+        <button id="btn-cari" class="btn btn-primary">Cari</button>
+    </div>
+
+    <div id="data-container">
+        <table class="table" id="anggota-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -22,52 +29,117 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for anggota in object_list %}
-                <tr>
-                    <td><strong>#{{ anggota.id }}</strong></td>
-                    <td>
-                        <strong>{{ anggota.nomor_anggota }}</strong>
-                    </td>
-                    <td>{{ anggota.nama_lengkap }}</td>
-                    <td>{{ anggota.email }}</td>
-                    <td>
-                        {% if anggota.no_telepon %}
-                            {{ anggota.no_telepon }}
-                        {% else %}
-                            <span style="color: #a0aec0;">-</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ anggota.tanggal_daftar|date:"d M Y" }}</td>
-                    <td>
-                        <a href="{% url 'anggota-detail' anggota.pk %}" class="btn btn-primary">Detail</a>
-                        <a href="{% url 'anggota-edit' anggota.pk %}" class="btn btn-warning">Edit</a>
-                        <a href="{% url 'anggota-hapus' anggota.pk %}" class="btn btn-danger">Hapus</a>
-                    </td>
-                </tr>
-                {% endfor %}
+            <tbody id="anggota-tbody">
+                <!-- Data via API -->
             </tbody>
         </table>
 
+        <!-- Pagination Controls -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+            <button id="prev-btn" class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled>Previous</button>
+            <span id="page-info" style="color: #4a5568;">Halaman 1</span>
+            <button id="next-btn" class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled>Next</button>
+        </div>
+
         <div class="stat-cards">
             <div class="stat-card" style="background: #e8f4fd;">
-                <h3 style="color: #2b6cb0;">{{ object_list.count }}</h3>
+                <h3 style="color: #2b6cb0;" id="stat-total">0</h3>
                 <p>Total Anggota</p>
             </div>
             <div class="stat-card" style="background: #f0fff4;">
-                <h3 style="color: #38a169;">{{ object_list|length }}</h3>
-                <p>Aktif</p>
-            </div>
-            <div class="stat-card" style="background: #fffaf0;">
-                <h3 style="color: #d69e2e;">0</h3>
-                <p>Sedang Meminjam</p>
+                <h3 style="color: #38a169;" id="stat-aktif">0</h3>
+                <p>Anggota Aktif</p>
             </div>
         </div>
-    {% else %}
-        <div style="text-align: center; padding: 3rem;">
-            <p style="font-size: 1.1rem; color: #718096; margin-bottom: 1.5rem;">Belum ada anggota terdaftar.</p>
-            <a href="{% url 'anggota-tambah' %}" class="btn btn-success">Daftarkan Anggota Pertama</a>
-        </div>
-    {% endif %}
+    </div>
+
+    <div id="empty-state" style="display: none; text-align: center; padding: 3rem;">
+        <p style="font-size: 1.1rem; color: #718096; margin-bottom: 1.5rem;">Belum ada anggota terdaftar.</p>
+        <a href="{% url 'anggota-tambah' %}" class="btn btn-success">Daftarkan Anggota Pertama</a>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentPage = 1;
+    loadData();
+
+    document.getElementById('btn-cari').addEventListener('click', () => loadData(1));
+    document.getElementById('search-input').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') loadData(1);
+    });
+    document.getElementById('prev-btn').addEventListener('click', () => {
+        if (currentPage > 1) loadData(currentPage - 1);
+    });
+    document.getElementById('next-btn').addEventListener('click', () => {
+        loadData(currentPage + 1);
+    });
+
+    function loadData(page = 1) {
+        const search = document.getElementById('search-input').value;
+        const params = { page: page, ordering: '-tanggal_daftar' };
+        if (search) params.search = search;
+
+        window.apiClient.get('anggota', params).then(res => {
+            // Handle Pagination
+            const data = res.results || res;
+
+            const tbody = document.getElementById('anggota-tbody');
+            const container = document.getElementById('data-container');
+            const emptyState = document.getElementById('empty-state');
+
+            if (!data || data.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            container.style.display = 'block';
+            emptyState.style.display = 'none';
+            tbody.innerHTML = '';
+
+            data.forEach(anggota => {
+                const tr = document.createElement('tr');
+                const tglDaftar = new Date(anggota.tanggal_daftar).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+
+                tr.innerHTML = `
+                    <td><strong>#${anggota.id}</strong></td>
+                    <td><strong>${anggota.nomor_anggota}</strong></td>
+                    <td>${anggota.nama_lengkap}</td>
+                    <td>${anggota.email}</td>
+                    <td>${anggota.no_telepon || '<span style="color: #a0aec0;">-</span>'}</td>
+                    <td>${tglDaftar}</td>
+                    <td>
+                        <a href="/perpustakaan/anggota/${anggota.id}/" class="btn btn-primary">Detail</a>
+                        <a href="/perpustakaan/anggota/${anggota.id}/edit/" class="btn btn-warning">Edit</a>
+                        <a href="/perpustakaan/anggota/${anggota.id}/hapus/" class="btn btn-danger">Hapus</a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Stats & Pagination
+            document.getElementById('stat-total').textContent = res.count;
+            document.getElementById('stat-aktif').textContent = res.count;
+
+            // Pagination Logic
+            if (res.next) currentPage = new URLSearchParams(res.next.split('?')[1]).get('page') - 1;
+            else if (res.previous && !res.next) currentPage = Math.ceil(res.count / 10);
+            else currentPage = 1;
+
+            document.getElementById('page-info').textContent = `Halaman ${currentPage} (Total: ${res.count})`;
+            
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            prevBtn.disabled = !res.previous;
+            prevBtn.style.opacity = res.previous ? '1' : '0.5';
+            nextBtn.disabled = !res.next;
+            nextBtn.style.opacity = res.next ? '1' : '0.5';
+        });
+    }
+});
+</script>
 {% endblock %}

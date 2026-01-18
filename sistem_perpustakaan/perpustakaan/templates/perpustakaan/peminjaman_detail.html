@@ -22,43 +22,23 @@
             
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">ID Peminjaman</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">
-                    {{ peminjaman.id }}
-                </div>
+                <div id="p-id" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Status Peminjaman</label>
-                <div style="padding: 0.75rem; border-radius: 6px; font-weight: 600;
-                    {% if peminjaman.status == 'DIKEMBALIKAN' %}
-                        background: #f0fff4; color: #276749; border: 1px solid #9ae6b4;
-                    {% elif peminjaman.status == 'TERLAMBAT' %}
-                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181;
-                    {% elif peminjaman.status == 'DIPINJAM' %}
-                        background: #fffaf0; color: #d69e2e; border: 1px solid #faf089;
-                    {% else %}
-                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
-                    {% endif %}">
-                    {{ peminjaman.get_status_display }}
-                </div>
+                <div id="p-status" style="padding: 0.75rem; border-radius: 6px; font-weight: 600;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Pinjam</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    {{ peminjaman.tanggal_pinjam|date:"l, d F Y" }}
-                </div>
+                <div id="p-tgl-pinjam" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Harus Kembali</label>
-                <div style="padding: 0.75rem; border-radius: 6px;
-                    {% if peminjaman.status == 'TERLAMBAT' %}
-                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181; font-weight: 600;
-                    {% else %}
-                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
-                    {% endif %}">
-                    {{ peminjaman.tanggal_kembali|date:"l, d F Y" }}
+                <div id="p-tgl-kembali" style="padding: 0.75rem; border-radius: 6px;">
+                    Loading...
                 </div>
             </div>
         </div>
@@ -68,54 +48,66 @@
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Dikembalikan</label>
-                <div style="padding: 0.75rem; border-radius: 6px;
-                    {% if peminjaman.tanggal_dikembalikan %}
-                        background: #f0fff4; color: #276749; border: 1px solid #9ae6b4;
-                    {% else %}
-                        background: #f8fafc; color: #a0aec0; border: 1px solid #e2e8f0;
-                    {% endif %}">
-                    {% if peminjaman.tanggal_dikembalikan %}
-                        {{ peminjaman.tanggal_dikembalikan|date:"l, d F Y" }}
-                    {% else %}
-                        Belum dikembalikan
-                    {% endif %}
-                </div>
+                <div id="p-tgl-dikembalikan" style="padding: 0.75rem; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Denda</label>
-                <div style="padding: 0.75rem; border-radius: 6px;
-                    {% if peminjaman.denda > 0 %}
-                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181; font-weight: 600;
-                    {% else %}
-                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
-                    {% endif %}">
-                    Rp {{ peminjaman.denda|floatformat:2 }}
-                </div>
+                <div id="p-denda" style="padding: 0.75rem; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Peminjam</label>
                 <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    <a href="{% url 'anggota-detail' peminjaman.anggota.pk %}" 
+                    <a id="link-anggota" href="#" 
                        style="color: #2b6cb0; font-weight: 600; text-decoration: none; display: block;">
-                        {{ peminjaman.anggota.nama_lengkap }}
+                        Loading...
                     </a>
-                    <small style="color: #718096;">{{ peminjaman.anggota.nomor_anggota }}</small>
+                    <small id="nomor-anggota" style="color: #718096;"></small>
                 </div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Buku</label>
                 <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    <a href="{% url 'buku-detail' peminjaman.buku.pk %}" 
+                    <a id="link-buku" href="#" 
                        style="color: #2b6cb0; font-weight: 600; text-decoration: none; display: block;">
-                        {{ peminjaman.buku.judul }}
+                        Loading...
                     </a>
-                    <small style="color: #718096;">oleh {{ peminjaman.buku.penulis }}</small>
+                    <small id="isbn-buku" style="color: #718096;"></small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    fetch(`/api/peminjaman/{{ peminjaman.id }}/`).then(r=>r.json()).then(d=>{
+        document.getElementById('p-id').textContent = d.id;
+        
+        const statusEl = document.getElementById('p-status');
+        statusEl.textContent = d.status_display;
+        // Simple styling logic
+        if(d.status === 'DIKEMBALIKAN') statusEl.style.background = '#f0fff4';
+        else if(d.status === 'TERLAMBAT') statusEl.style.background = '#fff5f5';
+        else statusEl.style.background = '#fffaf0';
+
+        const opts = {weekday:'long', day:'numeric', month:'long', year:'numeric'};
+        document.getElementById('p-tgl-pinjam').textContent = new Date(d.tanggal_pinjam).toLocaleDateString('id-ID', opts);
+        document.getElementById('p-tgl-kembali').textContent = new Date(d.tanggal_kembali).toLocaleDateString('id-ID', opts);
+        
+        document.getElementById('p-tgl-dikembalikan').textContent = d.tanggal_dikembalikan ? new Date(d.tanggal_dikembalikan).toLocaleDateString('id-ID', opts) : 'Belum dikembalikan';
+        document.getElementById('p-denda').textContent = 'Rp ' + d.denda;
+
+        const linkAnggota = document.getElementById('link-anggota');
+        linkAnggota.textContent = d.anggota_nama;
+        linkAnggota.href = `/perpustakaan/anggota/${d.anggota}/`;
+        document.getElementById('nomor-anggota').textContent = d.anggota_nomor;
+
+        const linkBuku = document.getElementById('link-buku');
+        linkBuku.textContent = d.buku_judul;
+        linkBuku.href = `/perpustakaan/buku/${d.buku}/`;
+        document.getElementById('isbn-buku').textContent = d.buku_isbn;
+    });
+</script>
 {% endblock %}

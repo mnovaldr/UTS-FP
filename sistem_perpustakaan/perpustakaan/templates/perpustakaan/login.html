@@ -1,0 +1,61 @@
+{% extends 'perpustakaan/base.html' %}
+
+{% block title %}Login - Sistem Perpustakaan{% endblock %}
+
+{% block content %}
+<div style="max-width: 400px; margin: 2rem auto;">
+    <div class="card">
+        <h1 style="text-align: center; margin-bottom: 1.5rem;">Login</h1>
+        
+        {% if form.errors %}
+            <div style="background-color: #fff5f5; color: #c53030; padding: 0.75rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.9rem;">
+                Username atau password salah. Silakan coba lagi.
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+                <label for="id_username" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Username</label>
+                <input type="text" name="username" id="id_username" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <label for="id_password" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Password</label>
+                <input type="password" name="password" id="id_password" required style="width: 100%; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">Masuk</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault(); // Tahan submit form sebentar
+            const formData = new FormData(form);
+
+            // 1. Request Token ke API
+            fetch('{% url "api_token_auth" %}', {
+                method: 'POST',
+                body: formData // Mengirim username & password
+            })
+            .then(response => {
+                if (response.ok) return response.json();
+                return null;
+            })
+            .then(data => {
+                if (data && data.token) {
+                    // 2. Simpan Token di LocalStorage
+                    localStorage.setItem('authToken', data.token);
+                }
+            })
+            .finally(() => {
+                // 3. Lanjutkan submit form untuk Login Session (Web)
+                form.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -9,8 +9,25 @@
         <a href="{% url 'buku-tambah' %}" class="btn btn-success">+ Tambah Buku</a>
     </div>
 
-    {% if object_list %}
-        <table class="table">
+    <!-- Filter & Search Controls -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <input type="text" id="search-input" placeholder="Cari judul, penulis, ISBN..." 
+               style="flex: 1; padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px; min-width: 200px;">
+        
+        <select id="filter-kategori" style="padding: 0.5rem; border: 1px solid #cbd5e0; border-radius: 4px;">
+            <option value="">Semua Kategori</option>
+            <option value="FIKSI">Fiksi</option>
+            <option value="NONFIKSI">Non-Fiksi</option>
+            <option value="TEKNOLOGI">Teknologi</option>
+            <option value="SEJARAH">Sejarah</option>
+            <option value="SASTRA">Sastra</option>
+        </select>
+        
+        <button id="btn-cari" class="btn btn-primary">Cari</button>
+    </div>
+
+    <div id="data-container">
+        <table class="table" id="buku-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -23,61 +40,183 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for buku in object_list %}
-                <tr>
-                    <td><strong>#{{ buku.id }}</strong></td>
-                    <td>
-                        <strong>{{ buku.judul }}</strong>
-                        {% if buku.stok == 0 %}
-                            <br><small style="color: #e53e3e;">Stok habis</small>
-                        {% endif %}
-                    </td>
-                    <td>{{ buku.penulis }}</td>
-                    <td>
-                        <span class="status-badge" style="background: #e8f4fd; color: #2b6cb0;">
-                            {{ buku.get_kategori_display }}
-                        </span>
-                    </td>
-                    <td>{{ buku.tahun_terbit }}</td>
-                    <td><code>{{ buku.isbn }}</code></td>
-                    <td>
-                        <span style="font-weight: 600; 
-                            {% if buku.stok > 3 %}color: #38a169;
-                            {% elif buku.stok > 0 %}color: #d69e2e;
-                            {% else %}color: #e53e3e;{% endif %}">
-                            {{ buku.stok }}
-                        </span>
-                    </td>
-                    <td>
-                        <a href="{% url 'buku-detail' buku.pk %}" class="btn btn-primary">Detail</a>
-                        <a href="{% url 'buku-edit' buku.pk %}" class="btn btn-warning">Edit</a>
-                        <a href="{% url 'buku-hapus' buku.pk %}" class="btn btn-danger">Hapus</a>
-                    </td>
-                </tr>
-                {% endfor %}
+            <tbody id="buku-tbody">
+                <!-- Data akan dimuat via API -->
             </tbody>
         </table>
 
+        <!-- Pagination Controls -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+            <button id="prev-btn" class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled>Previous</button>
+            <span id="page-info" style="color: #4a5568;">Halaman 1</span>
+            <button id="next-btn" class="btn btn-primary" style="opacity: 0.5; cursor: not-allowed;" disabled>Next</button>
+        </div>
+
         <div class="stat-cards">
             <div class="stat-card" style="background: #e8f4fd;">
-                <h3 style="color: #2b6cb0;">{{ object_list.count }}</h3>
-                <p>Total Buku</p>
+                <h3 style="color: #2b6cb0;" id="stat-total-judul">0</h3>
+                <p>Total Judul Buku</p>
             </div>
             <div class="stat-card" style="background: #f0fff4;">
-                <h3 style="color: #38a169;">{{ object_list|length }}</h3>
-                <p>Tersedia</p>
+                <h3 style="color: #38a169;" id="stat-total-stok">0</h3>
+                <p>Total Stok Tersedia</p>
             </div>
             <div class="stat-card" style="background: #fffaf0;">
-                <h3 style="color: #d69e2e;">0</h3>
-                <p>Sedang Dipinjam</p>
+                <h3 style="color: #d69e2e;" id="stat-sedang-dipinjam">0</h3>
+                <p>Buku Sedang Dipinjam</p>
             </div>
         </div>
-    {% else %}
-        <div style="text-align: center; padding: 3rem;">
-            <p style="font-size: 1.1rem; color: #718096; margin-bottom: 1.5rem;">Belum ada buku dalam katalog.</p>
-            <a href="{% url 'buku-tambah' %}" class="btn btn-success">Tambah Buku Pertama</a>
-        </div>
-    {% endif %}
+    </div>
+
+    <div id="empty-state" style="display: none; text-align: center; padding: 3rem;">
+        <p style="font-size: 1.1rem; color: #718096; margin-bottom: 1.5rem;">Belum ada buku dalam katalog.</p>
+        <a href="{% url 'buku-tambah' %}" class="btn btn-success">Tambah Buku Pertama</a>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentPage = 1;
+    
+    // Initial Load
+    loadData();
+    loadStats(); // Load stats terpisah agar tidak terpengaruh filter tabel
+
+    // Event Listeners
+    document.getElementById('btn-cari').addEventListener('click', () => loadData(1));
+    document.getElementById('search-input').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') loadData(1);
+    });
+    document.getElementById('filter-kategori').addEventListener('change', () => loadData(1));
+    
+    document.getElementById('prev-btn').addEventListener('click', () => {
+        if (currentPage > 1) loadData(currentPage - 1);
+    });
+    document.getElementById('next-btn').addEventListener('click', () => {
+        loadData(currentPage + 1);
+    });
+
+    function loadData(page = 1) {
+        const search = document.getElementById('search-input').value;
+        const kategori = document.getElementById('filter-kategori').value;
+        
+        const params = { page: page, ordering: 'judul' };
+        if (search) params.search = search;
+        if (kategori) params.kategori = kategori;
+
+        window.apiClient.get('buku', params).then(res => {
+            renderTable(res);
+        }).catch(err => console.error(err));
+    }
+
+    function renderTable(res) {
+        const tbody = document.getElementById('buku-tbody');
+        const container = document.getElementById('data-container');
+        const emptyState = document.getElementById('empty-state');
+
+        // Handle Pagination (DRF return {results: [...]})
+        const bukuData = res.results || res;
+
+        // Cek jika data buku kosong
+        if (!bukuData || bukuData.length === 0) {
+            container.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+        
+        container.style.display = 'block';
+        emptyState.style.display = 'none';
+        tbody.innerHTML = ''; // Clear existing data
+
+        // 1. Render Tabel Buku
+        bukuData.forEach(buku => {
+            const stokTersedia = buku.stok; // Stok dari API sudah stok real-time
+
+            const tr = document.createElement('tr');
+            
+            // Logika Warna Stok
+            let stokStyle = '';
+            if (stokTersedia > 3) {
+                stokStyle = 'color: #38a169;'; // Hijau
+            } else if (stokTersedia > 0) {
+                stokStyle = 'color: #d69e2e;'; // Kuning/Oranye
+            } else {
+                stokStyle = 'color: #e53e3e;'; // Merah
+            }
+
+            // Label Stok Habis
+            const stokHabisLabel = stokTersedia <= 0 ? '<br><small style="color: #e53e3e;">Stok habis</small>' : '';
+
+            tr.innerHTML = `
+                <td><strong>#${buku.id}</strong></td>
+                <td>
+                    <strong>${buku.judul}</strong>
+                    ${stokHabisLabel}
+                </td>
+                <td>${buku.penulis}</td>
+                <td>
+                    <span class="status-badge" style="background: #e8f4fd; color: #2b6cb0;">
+                        ${buku.kategori_display || buku.kategori}
+                    </span>
+                </td>
+                <td>${buku.tahun_terbit}</td>
+                <td><code>${buku.isbn}</code></td>
+                <td>
+                    <span style="font-weight: 600; ${stokStyle}">
+                        ${stokTersedia}
+                    </span>
+                </td>
+                <td>
+                    <a href="/perpustakaan/buku/${buku.id}/" class="btn btn-primary">Detail</a>
+                    <a href="/perpustakaan/buku/${buku.id}/edit/" class="btn btn-warning">Edit</a>
+                    <a href="/perpustakaan/buku/${buku.id}/delete/" class="btn btn-danger">Hapus</a>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Update Pagination UI
+        // Fallback logic sederhana untuk page number jika API tidak mengirim current_page
+        if (!res.previous && !res.next) currentPage = 1;
+        else if (res.previous && !res.next) currentPage = Math.ceil(res.count / 10);
+        else if (res.next) currentPage = new URLSearchParams(res.next.split('?')[1]).get('page') - 1;
+
+        document.getElementById('page-info').textContent = `Halaman ${currentPage} (Total: ${res.count})`;
+        
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        
+        prevBtn.disabled = !res.previous;
+        prevBtn.style.opacity = res.previous ? '1' : '0.5';
+        prevBtn.style.cursor = res.previous ? 'pointer' : 'not-allowed';
+        
+        nextBtn.disabled = !res.next;
+        nextBtn.style.opacity = res.next ? '1' : '0.5';
+        nextBtn.style.cursor = res.next ? 'pointer' : 'not-allowed';
+        
+        // Update Total Judul (Real count from DB)
+        document.getElementById('stat-total-judul').textContent = res.count;
+    }
+
+    // Fungsi terpisah untuk statistik agar akurat (tidak terpengaruh pagination tabel)
+    function loadStats() {
+        // Kita ambil data peminjaman untuk statistik "Sedang Dipinjam"
+        // Catatan: Idealnya ada endpoint khusus statistik di backend.
+        // Di sini kita fetch peminjaman (limit default) hanya untuk contoh sederhana.
+        window.apiClient.get('peminjaman').then(res => {
+            const pinjamData = res.results || [];
+            // Hitung manual dari page pertama (limitasi client-side)
+            // atau gunakan endpoint khusus jika ada.
+            // Untuk sekarang kita biarkan logic lama tapi hanya pada data yang terambil
+            let jumlahDipinjam = pinjamData.filter(p => p.status === 'DIPINJAM').length;
+            document.getElementById('stat-sedang-dipinjam').textContent = jumlahDipinjam + (res.next ? '+' : '');
+        });
+
+        // Untuk Total Stok, kita tidak bisa menjumlahkan semua halaman di frontend.
+        // Kita hanya bisa menampilkan stok dari halaman yang sedang dilihat di tabel,
+        // atau kita set '-' karena butuh endpoint agregasi backend.
+        document.getElementById('stat-total-stok').textContent = '-'; 
+    }
+});
+</script>
 {% endblock %}

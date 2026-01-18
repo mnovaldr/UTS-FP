@@ -16,14 +16,25 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.shortcuts import redirect
-
-def redirect_to_anggota(request):
-    return redirect('anggota-list')
+from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import TemplateView
+from rest_framework.authtoken.views import obtain_auth_token
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', redirect_to_anggota, name='home'),  
+    
+    # Landing Page & Auth Web
+    path('', TemplateView.as_view(template_name='perpustakaan/landing.html'), name='home'),
+    path('accounts/login/', LoginView.as_view(template_name='perpustakaan/login.html'), name='login'),
+    path('accounts/logout/', LogoutView.as_view(), name='logout'),
+    
     path('perpustakaan/', include('perpustakaan.urls')),
     path('api/', include('perpustakaan.api_urls')),
+    path('api/token/', obtain_auth_token, name='api_token_auth'),
+
+    # Endpoint untuk mengunduh schema YAML/JSON
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    # Endpoint untuk tampilan UI Redoc
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]

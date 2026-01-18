@@ -5,13 +5,32 @@
 {% block content %}
 <div class="card">
     <h2>Yakin ingin menghapus anggota ini?</h2>
-    <p><strong>Nama:</strong> {{ object.nama }}</p>
-    <p><strong>Email:</strong> {{ object.email }}</p>
+    <p><strong>Nama:</strong> <span id="del-nama">Loading...</span></p>
+    <p><strong>Email:</strong> <span id="del-email">Loading...</span></p>
 
-    <form method="post">
+    <form id="delete-form">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Ya, Hapus!</button>
         <a href="{% url 'anggota-list' %}" class="btn btn-primary">Batal</a>
     </form>
 </div>
+
+<script>
+    const id = "{{ object.id }}";
+    fetch(`/api/anggota/${id}/`).then(r=>r.json()).then(d=>{
+        document.getElementById('del-nama').textContent = d.nama_lengkap;
+        document.getElementById('del-email').textContent = d.email;
+    });
+
+    document.getElementById('delete-form').addEventListener('submit', function(e){
+        e.preventDefault();
+        fetch(`/api/anggota/${id}/`, {
+            method: 'DELETE',
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value}
+        }).then(res => {
+            if(res.ok) window.location.href = "{% url 'anggota-list' %}";
+            else alert('Gagal menghapus');
+        });
+    });
+</script>
 {% endblock %}

@@ -22,17 +22,17 @@
             
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Nomor Anggota</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ anggota.nomor_anggota }}</div>
+                <div id="detail-nomor" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Nama Lengkap</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ anggota.nama_lengkap }}</div>
+                <div id="detail-nama" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Email</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">{{ anggota.email }}</div>
+                <div id="detail-email" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
         </div>
 
@@ -41,26 +41,22 @@
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Nomor Telepon</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    {% if anggota.no_telepon %}
-                        {{ anggota.no_telepon }}
-                    {% else %}
-                        <span style="color: #a0aec0;">-</span>
-                    {% endif %}
+                <div id="detail-telepon" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    Loading...
                 </div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Alamat</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; min-height: 80px;">
-                    {{ anggota.alamat|linebreaks }}
+                <div id="detail-alamat" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; min-height: 80px;">
+                    Loading...
                 </div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Bergabung</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    {{ anggota.tanggal_daftar|date:"l, d F Y H:i" }}
+                <div id="detail-tanggal" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
+                    Loading...
                 </div>
             </div>
         </div>
@@ -81,34 +77,66 @@
                     <th>Status</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for pinjam in anggota.peminjaman.all %}
-                    <tr>
-                        <td>{{ pinjam.buku.judul }}</td>
-                        <td>{{ pinjam.tanggal_pinjam|date:"d F Y" }}</td>
-                        <td>
-                            {% if pinjam.tanggal_kembali %}
-                                {{ pinjam.tanggal_kembali|date:"d F Y" }}
-                            {% else %}
-                                <span style="color:#718096;">Belum kembali</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if pinjam.status == 'dipinjam' %}
-                                <span class="badge bg-warning text-dark">Dipinjam</span>
-                            {% else %}
-                                <span class="badge bg-success">Dikembalikan</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="4" style="text-align:center; color:#718096;">Belum ada data peminjaman</td>
-                    </tr>
-                {% endfor %}
+            <tbody id="riwayat-tbody">
+                <!-- Data via API -->
             </tbody>
         </table>
     </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const id = "{{ anggota.id }}"; // Menggunakan ID dari context view untuk inisialisasi
+    fetch(`/api/anggota/${id}/`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('detail-nomor').textContent = data.nomor_anggota;
+            document.getElementById('detail-nama').textContent = data.nama_lengkap;
+            document.getElementById('detail-email').textContent = data.email;
+            document.getElementById('detail-telepon').textContent = data.no_telepon || '-';
+            document.getElementById('detail-alamat').textContent = data.alamat;
+            document.getElementById('detail-tanggal').textContent = new Date(data.tanggal_daftar).toLocaleDateString('id-ID', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+            });
+        });
+
+    // Fetch Riwayat Peminjaman (Filtered by Anggota)
+    fetch(`/api/peminjaman/?anggota=${id}`)
+        .then(res => res.json())
+        .then(data => {
+            const tbody = document.getElementById('riwayat-tbody');
+            tbody.innerHTML = ''; // Bersihkan loading state
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#718096;">Belum ada riwayat peminjaman.</td></tr>';
+                return;
+            }
+
+            data.forEach(pinjam => {
+                const tr = document.createElement('tr');
+                const opts = { day: 'numeric', month: 'short', year: 'numeric' };
+                const tglPinjam = new Date(pinjam.tanggal_pinjam).toLocaleDateString('id-ID', opts);
+                const tglKembali = pinjam.tanggal_kembali ? new Date(pinjam.tanggal_kembali).toLocaleDateString('id-ID', opts) : '-';
+
+                let statusBadge = '';
+                if (pinjam.status === 'DIKEMBALIKAN') {
+                    statusBadge = '<span class="status-badge" style="background: #d4edda; color: #155724; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.85rem;">Dikembalikan</span>';
+                } else if (pinjam.status === 'TERLAMBAT') {
+                    statusBadge = '<span class="status-badge" style="background: #f8d7da; color: #721c24; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.85rem;">Terlambat</span>';
+                } else {
+                    statusBadge = '<span class="status-badge" style="background: #fff3cd; color: #856404; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.85rem;">Dipinjam</span>';
+                }
+
+                tr.innerHTML = `
+                    <td><a href="/perpustakaan/buku/${pinjam.buku}/" style="color: #2b6cb0; text-decoration: none; font-weight: 600;">${pinjam.buku_judul}</a></td>
+                    <td>${tglPinjam}</td>
+                    <td>${tglKembali}</td>
+                    <td>${statusBadge}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+});
+</script>
 {% endblock %}

@@ -33,39 +33,22 @@
             
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">ID Peminjaman</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">
-                    {{ object.id }}
-                </div>
+                <div id="del-id" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px; font-family: monospace;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Status</label>
-                <div style="padding: 0.75rem; border-radius: 6px; font-weight: 600;
-                    {% if object.status == 'DIKEMBALIKAN' %}
-                        background: #f0fff4; color: #276749; border: 1px solid #9ae6b4;
-                    {% elif object.status == 'TERLAMBAT' %}
-                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181;
-                    {% elif object.status == 'DIPINJAM' %}
-                        background: #fffaf0; color: #d69e2e; border: 1px solid #faf089;
-                    {% else %}
-                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
-                    {% endif %}">
-                    {{ object.get_status_display }}
-                </div>
+                <div id="del-status" style="padding: 0.75rem; border-radius: 6px; font-weight: 600;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Pinjam</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    {{ object.tanggal_pinjam|date:"l, d F Y" }}
-                </div>
+                <div id="del-tgl-pinjam" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Harus Kembali</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    {{ object.tanggal_kembali|date:"l, d F Y" }}
-                </div>
+                <div id="del-tgl-kembali" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
         </div>
 
@@ -75,45 +58,32 @@
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Peminjam</label>
                 <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    <div style="font-weight: 600; color: #2b6cb0;">{{ object.anggota.nama_lengkap }}</div>
-                    <small style="color: #718096;">{{ object.anggota.nomor_anggota }}</small>
+                    <div id="del-anggota" style="font-weight: 600; color: #2b6cb0;">Loading...</div>
+                    <small id="del-anggota-nomor" style="color: #718096;"></small>
                 </div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Buku</label>
                 <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    <div style="font-weight: 600; color: #2b6cb0;">{{ object.buku.judul }}</div>
-                    <small style="color: #718096;">oleh {{ object.buku.penulis }}</small>
+                    <div id="del-buku" style="font-weight: 600; color: #2b6cb0;">Loading...</div>
+                    <small id="del-buku-penulis" style="color: #718096;"></small>
                 </div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Denda</label>
-                <div style="padding: 0.75rem; border-radius: 6px;
-                    {% if object.denda > 0 %}
-                        background: #fff5f5; color: #c53030; border: 1px solid #fc8181; font-weight: 600;
-                    {% else %}
-                        background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;
-                    {% endif %}">
-                    Rp {{ object.denda|floatformat:2 }}
-                </div>
+                <div id="del-denda" style="padding: 0.75rem; border-radius: 6px;">Loading...</div>
             </div>
 
             <div style="margin-bottom: 1rem;">
                 <label style="font-weight: 600; display: block; margin-bottom: 0.25rem;">Tanggal Dikembalikan</label>
-                <div style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">
-                    {% if object.tanggal_dikembalikan %}
-                        <span style="color: #38a169;">{{ object.tanggal_dikembalikan|date:"l, d F Y" }}</span>
-                    {% else %}
-                        <span style="color: #a0aec0;">Belum dikembalikan</span>
-                    {% endif %}
-                </div>
+                <div id="del-tgl-dikembalikan" style="padding: 0.75rem; background: #f8fafc; border-radius: 6px;">Loading...</div>
             </div>
         </div>
     </div>
 
-    <form method="post">
+    <form id="delete-form">
         {% csrf_token %}
         
         <div style="display: flex; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
@@ -127,4 +97,63 @@
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const id = "{{ object.id }}";
+    
+    // Fetch Data Peminjaman
+    fetch(`/api/peminjaman/${id}/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('del-id').textContent = data.id;
+            
+            const statusEl = document.getElementById('del-status');
+            statusEl.textContent = data.status_display;
+            if(data.status === 'DIKEMBALIKAN') statusEl.style.cssText = "padding: 0.75rem; border-radius: 6px; font-weight: 600; background: #f0fff4; color: #276749; border: 1px solid #9ae6b4;";
+            else if(data.status === 'TERLAMBAT') statusEl.style.cssText = "padding: 0.75rem; border-radius: 6px; font-weight: 600; background: #fff5f5; color: #c53030; border: 1px solid #fc8181;";
+            else statusEl.style.cssText = "padding: 0.75rem; border-radius: 6px; font-weight: 600; background: #fffaf0; color: #d69e2e; border: 1px solid #faf089;";
+
+            const opts = {weekday:'long', day:'numeric', month:'long', year:'numeric'};
+            document.getElementById('del-tgl-pinjam').textContent = new Date(data.tanggal_pinjam).toLocaleDateString('id-ID', opts);
+            document.getElementById('del-tgl-kembali').textContent = new Date(data.tanggal_kembali).toLocaleDateString('id-ID', opts);
+            
+            document.getElementById('del-anggota').textContent = data.anggota_nama;
+            document.getElementById('del-anggota-nomor').textContent = data.anggota_nomor;
+            
+            document.getElementById('del-buku').textContent = data.buku_judul;
+            document.getElementById('del-buku-penulis').textContent = `ISBN: ${data.buku_isbn}`;
+
+            const dendaEl = document.getElementById('del-denda');
+            dendaEl.textContent = 'Rp ' + data.denda;
+            if(data.denda > 0) dendaEl.style.cssText = "padding: 0.75rem; border-radius: 6px; background: #fff5f5; color: #c53030; border: 1px solid #fc8181; font-weight: 600;";
+            else dendaEl.style.cssText = "padding: 0.75rem; border-radius: 6px; background: #f8fafc; color: #4a5568; border: 1px solid #e2e8f0;";
+
+            const tglDikembalikanEl = document.getElementById('del-tgl-dikembalikan');
+            if(data.tanggal_dikembalikan) {
+                tglDikembalikanEl.innerHTML = `<span style="color: #38a169;">${new Date(data.tanggal_dikembalikan).toLocaleDateString('id-ID', opts)}</span>`;
+            } else {
+                tglDikembalikanEl.innerHTML = `<span style="color: #a0aec0;">Belum dikembalikan</span>`;
+            }
+        });
+
+    // Handle Delete
+    document.getElementById('delete-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        fetch(`/api/peminjaman/${id}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.href = "{% url 'peminjaman-list' %}";
+            } else {
+                alert('Gagal menghapus data peminjaman.');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

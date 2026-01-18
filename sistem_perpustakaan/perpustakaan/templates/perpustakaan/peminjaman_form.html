@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <form method="post">
+    <form id="peminjaman-form">
         {% csrf_token %}
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
@@ -98,7 +98,7 @@
 
         <div style="margin-top: 2rem; display: flex; gap: 1rem;">
             <button type="submit" class="btn btn-success">
-                {% if object %}Update Peminjaman{% else %}Simpan Peminjaman{% endif %}
+                Simpan Peminjaman
             </button>
             <a href="{% url 'peminjaman-list' %}" class="btn btn-secondary">Batal</a>
         </div>
@@ -122,4 +122,47 @@
         box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
     }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('peminjaman-form');
+    const id = "{{ object.id|default:'' }}";
+    const isEdit = id !== '';
+    const url = isEdit ? `/api/peminjaman/${id}/` : '/api/peminjaman/';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    if (isEdit) {
+        fetch(url).then(r=>r.json()).then(data => {
+            document.querySelector('[name="anggota"]').value = data.anggota;
+            document.querySelector('[name="buku"]').value = data.buku;
+            document.querySelector('[name="tanggal_pinjam"]').value = data.tanggal_pinjam;
+            document.querySelector('[name="tanggal_kembali"]').value = data.tanggal_kembali;
+            if(data.tanggal_dikembalikan) document.querySelector('[name="tanggal_dikembalikan"]').value = data.tanggal_dikembalikan;
+            document.querySelector('[name="status"]').value = data.status;
+            document.querySelector('[name="denda"]').value = data.denda;
+        });
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        
+        fetch(url, {
+            method: method,
+            headers: {'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value},
+            body: formData
+        })
+        .then(async response => {
+            if (response.ok) {
+                window.location.href = "{% url 'peminjaman-list' %}";
+            } else {
+                const err = await response.json();
+                let msg = 'Gagal menyimpan.';
+                if(err.buku) msg += ' ' + err.buku; // Menampilkan error stok
+                alert(msg);
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -178,9 +178,20 @@
     <header>
         <h1><a href="{% url 'home' %}">📚 Sistem Perpustakaan</a></h1>
         <nav>
-            <a href="{% url 'anggota-list' %}">Anggota</a>
-            <a href="{% url 'buku-list' %}">Buku</a>
-            <a href="{% url 'peminjaman-list' %}">Peminjaman</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'anggota-list' %}">Anggota</a>
+                <a href="{% url 'buku-list' %}">Buku</a>
+                <a href="{% url 'peminjaman-list' %}">Peminjaman</a>
+                <a href="{% url 'redoc' %}" target="_blank">API Docs</a>
+                
+                <span style="margin-left: 1.25rem; color: #718096;">|</span>
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; cursor: pointer; margin-left: 1.25rem; color: #e53e3e; font-weight: 500; font-size: 0.95rem;">Logout ({{ user.username }})</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+            {% endif %}
         </nav>
     </header>
 
@@ -191,5 +202,42 @@
     <footer>
         &copy; {% now "Y" %} Sistem Perpustakaan | Django
     </footer>
+
+    <script>
+        // 1. Handle Logout: Hapus Token
+        const logoutForm = document.querySelector('form[action*="logout"]');
+        if (logoutForm) {
+            logoutForm.addEventListener('submit', function() {
+                localStorage.removeItem('authToken');
+            });
+        }
+
+        // 2. API Client Helper Global
+        window.apiClient = {
+            get: async function(endpoint, queryParams = null) {
+                const token = localStorage.getItem('authToken');
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                // Sisipkan Token jika ada
+                if (token) {
+                    headers['Authorization'] = `Token ${token}`;
+                }
+                
+                let url = `/api/${endpoint}/`;
+                if (queryParams) {
+                    const queryString = new URLSearchParams(queryParams).toString();
+                    url += `?${queryString}`;
+                }
+                
+                const response = await fetch(url, {
+                    headers: headers
+                });
+                
+                return response.json();
+            }
+        };
+    </script>
 </body>
 </html>
